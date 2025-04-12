@@ -83,11 +83,6 @@
 - **Fact-Checking**:  
   Prefix queries with `<!-- AI:fact-check -->` for verification.
 
-## Shortcuts
-- `Ctrl+Shift+S`: Toggle web search.
-- `Ctrl+Shift+M`: Insert Markdown template.
-- `Ctrl+Shift+A`: Open AI assistance menu.
-
 ## Example Markdown Template
 ```markdown
 # Title
