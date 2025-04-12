@@ -30,7 +30,11 @@
       "autoSuggest": true
     },
     "summarization": true,
-    "citationGeneration": true
+    "citationGeneration": true,
+    "languageOutput": {
+      "default": "zh-TW",
+      "excludeEnglish": true
+    }
   },
   "markdownFeatures": {
     "syntaxHighlighting": true,
