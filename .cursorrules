@@ -1,0 +1,113 @@
+# .cursorrules for Writing and Note-Taking
+
+## Core Configuration
+{
+  "projectContext": {
+    "purpose": "Content creation and note-taking",
+    "features": ["web-search-enabled", "markdown-support", "ai-assistance"]
+  },
+  "codingStandards": {
+    "general": {
+      "useMarkdown": true,
+      "autoFormatting": true,
+      "webSearchByDefault": true
+    },
+    "namingConventions": {
+      "files": "kebab-case",
+      "headings": "sentence-case"
+    }
+  },
+  "editorPreferences": {
+    "spellCheck": true,
+    "grammarCheck": true,
+    "wordWrap": true,
+    "lineLength": 80
+  },
+  "aiAssistance": {
+    "webSearch": {
+      "enabled": true,
+      "providers": ["Google", "Wikipedia"],
+      "autoSuggest": true
+    },
+    "summarization": true,
+    "citationGeneration": true
+  },
+  "markdownFeatures": {
+    "syntaxHighlighting": true,
+    "tableSupport": true,
+    "footnotes": true,
+    "taskLists": true
+  },
+  "templates": {
+    "article": {
+      "sections": ["Title", "Introduction", "Body", "Conclusion", "References"],
+      "defaultTags": ["draft"]
+    },
+    "note": {
+      "sections": ["Summary", "Details", "Questions", "Follow-up"],
+      "defaultTags": ["quick-note"]
+    }
+  }
+}
+
+## Workflow Rules
+1. **Content Creation**:
+   - Use Markdown for formatting (headings, lists, links).
+   - Enable `web-search` for research and fact-checking.
+   - Leverage AI for summarization and idea expansion.
+
+2. **Note-Taking**:
+   - Organize notes with hierarchical headings.
+   - Use `> ` for blockquotes and `- [ ]` for tasks.
+   - Tag notes for easy retrieval (e.g., `#meeting`, `#idea`).
+
+3. **Publishing**:
+   - Export to HTML or PDF with preserved formatting.
+   - Auto-generate a table of contents for long articles.
+
+## Web Search Integration
+- **Default Behavior**:  
+  All queries trigger a web search unless explicitly disabled.
+- **Citation Format**:  
+  Automatically format references in Markdown (e.g., `[Source](URL)`).
+
+## AI Features
+- **Summarization**:  
+  Highlight text and request a summary with `<!-- AI:summarize -->`.
+- **Expansion**:  
+  Use `<!-- AI:expand -->` to generate additional content.
+- **Fact-Checking**:  
+  Prefix queries with `<!-- AI:fact-check -->` for verification.
+
+## Shortcuts
+- `Ctrl+Shift+S`: Toggle web search.
+- `Ctrl+Shift+M`: Insert Markdown template.
+- `Ctrl+Shift+A`: Open AI assistance menu.
+
+## Example Markdown Template
+```markdown
+# Title
+
+<!-- AI:summarize -->
+> Brief summary or abstract.
+
+## Introduction
+- Context or background.
+- Key questions or goals.
+
+## Body
+1. Main point 1.
+2. Main point 2.
+   - Supporting detail.
+   - [Source](https://example.com).
+
+## Conclusion
+- Summary of findings.
+- Future directions.
+
+<!-- AI:expand -->
+```
+
+## Notes
+- Enable `spellCheck` and `grammarCheck` for polished writing.
+- Use `<!-- AI:help -->` for a list of available AI commands.
