@@ -1,4 +1,4 @@
-### 修正測試的 Prompt
+## 修正測試的 Prompt
 1. 第一次修正測試的 Prompt
 ```
 請幫我看一下，為何 @Home.test.tsx  displays correct countdown time 這個測試會出錯，可以檢查 @UpcomingSlates.tsx 以及相關組件、和測試相關的準備。
@@ -12,6 +12,9 @@
 - 可以多多查找 @UpcomingSlates.tsx , @UpcomingByDaySlateCard.tsx 和@UpcomingMatchItem.tsx 這些組件
 ```
 
+---
+
+## Prompt 結果
 
 我檢查了測試和相關組件，找到了 "displays correct countdown time" 測試失敗的原因。
 
