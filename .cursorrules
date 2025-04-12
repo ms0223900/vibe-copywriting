@@ -110,3 +110,17 @@
 ## Notes
 - Enable `spellCheck` and `grammarCheck` for polished writing.
 - Use `<!-- AI:help -->` for a list of available AI commands.
+
+## 技術文章寫作指引 / Technical Article Writing Guidelines
+
+- 當生成技術文章時，請確保技術內容精確無誤，但同時用較口語化、親切的語言呈現。
+- 簡明扼要地解釋技術細節，適當使用例子或類比來說明概念。
+- 保持專業的同時，讓文章更易讀且具啟發性。
+- 強調文章架構清晰，包含標題、簡介、內容與結論。
+- 使用 Markdown 格式以增強可讀性，並適當利用引用、列表與連結來豐富內容。
+
+- When generating technical articles, ensure technical accuracy and precision, while adopting a conversational and approachable tone.
+- Clearly and concisely explain technical details, using examples or analogies when appropriate.
+- Maintain a balance between professionalism and readability to engage the reader.
+- Emphasize a clear structure including title, introduction, body, and conclusion.
+- Utilize Markdown formatting to enhance readability, with proper use of quotes, lists, and links.
