@@ -193,16 +193,208 @@ curl -X GET http://yourdomain.com/emails
 - 程式碼範例可能有隱藏的邏輯錯誤
 - 系統架構建議可能忽略關鍵限制條件
 
-更棘手的是，AI 通常會「自信地」呈現這些不準確的資訊，讓初學者難以辨別真偽。這正是為什麼在專業開發中，我們需要建立「Prompt 品質控制」機制，而非完全依賴 AI 的原始輸出。
+更棘手的是，AI 通常會「自信地」呈現這些不準確的資訊，讓初學者難以辨別真偽，難以判別 AI 給的答案是否是「真的有用」，還只是「看似有用」，實際上是「結構優良」的無用程式碼。
 
-...
+這正是為什麼在專業開發中，我們需要建立「Prompt 品質控制」機制，而非完全放任 AI 自由生成答案。
+
 
 ### 設定 Prompt 原則
 
+首先，要教大家設計 Prompt 的基礎原則，首先是 Prompt 的「結構」。
+
+最基本的結構，是「無序清單」和「有序清單」。將我們的期望，以清單的方式列出，讓 AI 知道我們的期望。這在寫程式碼生成時，特別好用，也蠻常見的，像是：
+
+以無序清單提供說明，像是：
+```
+請幫我設計一個註冊表單，包含以下功能：
+  - 使用者名稱
+  - 使用者密碼
+  - 使用者信箱
+```
+如此一來，AI 會知道我們的期望，總共有這些「具體」該實現的項目。比較不會讓 AI 「自由發揮」，產出不符合我們期望的內容。畢竟寫程式不是隨興創作，而是要解決我們的問題，希望 AI 可以照我們腦中想的，精準實作出來。
+
+以下是上面的 Prompt 的結果，AI 產出一份 HTML Form 表單，但實際上我是想要請 AI 產出一份「使用 React Hook Form 的 React 表單元件」，可以看到說，雖然產出的結果姑且算是「可以用」，但不是我們想要的，還不夠精準。
+```
+<form>
+  <div class="form-group">
+    <label for="username">使用者名稱</label>
+    <input type="text" id="username" name="username" required>
+  </div>
+  
+  <div class="form-group">
+    <label for="password">使用者密碼</label>
+    <input type="password" id="password" name="password" required>
+  </div>
+  
+  <div class="form-group">
+    <label for="email">使用者信箱</label>
+    <input type="email" id="email" name="email" required>
+  </div>
+  
+  <button type="submit">註冊</button>
+</form>
+```
+
+進一步呢，無序清單還可以補充「子清單」的說明，像是：
+```
+請幫我設計一個註冊表單，包含以下功能：
+  - 以 React Hook Form 實作
+    - 以 React 實作
+    - 元件使用 Shadcn 的 UI 元件
+  - 使用者名稱
+    - 必填
+    - 長度限制 20 個字
+  - 使用者密碼
+    - 必填
+    - 長度限制 8 ~ 16 個字
+  - 使用者信箱
+    - 必填
+    - 長度限制 10 個字，驗證格式為 email。
+```
+
+以下是上述 Prompt 結果的「部分節錄」，可以看到說，這樣的結果不只符合我們的期望了，且相當完整，幾乎是「可以開箱即用」的成品了！
+```
+import { useForm } from "react-hook-form";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+
+export function RegisterForm() {
+  const form = useForm({
+    defaultValues: {
+      username: "",
+      password: "",
+      email: "",
+    },
+  });
+
+  const onSubmit = (data) => {
+    console.log(data);
+  };
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        // ...
+        <FormField
+          control={form.control}
+          name="email"
+          rules={{
+            required: "電子郵件為必填",
+            maxLength: {
+              value: 10,
+              message: "電子郵件不能超過10個字",
+            },
+            pattern: {
+              value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+              message: "請輸入有效的電子郵件格式",
+            },
+          }}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>使用者信箱</FormLabel>
+              <FormControl>
+                <Input type="email" placeholder="請輸入電子郵件" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <Button type="submit">註冊</Button>
+      </form>
+    </Form>
+  );
+}
+
+```
+
+總的來說，無序清單可以提供「具體」的說明，讓 AI 知道我們的期望。此外，清單還可以補充「子清單」的說明，讓 AI 知道我們的期望更精確，補充每一項的細節，細節越具體，使得產出的結果越符合我們的期望。
+
+
+以有序清單提供步驟，像是：
+請幫我設計一個註冊表單，包含以下步驟：
+  - 步驟 1：設計表單結構
+  - 步驟 2：設計表單樣式
+  - 步驟 3：設計表單功能
+
+
+無序清單和有序清單，都是蠻常見的 Prompt 結構，可以讓 AI 知道我們的期望。而這兩者的結合，可以讓 AI 知道我們的期望更精確，像是：
+```
+請幫我設計一個註冊表單，包含以下步驟：
+  - 步驟 1：設計表單結構
+    - 以 React Hook Form 實作
+    - 以 React 實作
+    - 元件使用 Shadcn 的 UI 元件
+```
+主要使用時機的差異，在於我們的期望是否需要有「順序」，像是表單的每個欄位需求，適合用「無序清單」，因為我們的期望每一項並沒有區分「先後順序」的必要：
+- 表單需求 A
+- 表單需求 B
+- 表單需求 C
+
+而如果我們的期望需要有「順序」，像是請 AI 幫我們實作一個功能，照一系列的操作步驟，以確保每一步的生成可以依照前一步的結果，逐步生成：
+1. 先幫我根據需求，撰寫表單 UI 操作的「測試程式碼」。
+2. 再幫我實作表單 UI 元件，執行測試程式碼，確保 UI 元件符合需求。
+3. 最後依照此需求，撰寫技術文件。
+
+這樣的清單，就是「有序清單」，因為我們的期望每一項都有「先後順序」的必要，且若不照此順序，會導致產出的結果不符合我們的期望，那就很適合用「有序清單」。
+
+最後，提供一個最完整，結合「無序清單」和「有序清單」的 Prompt 範例供大家參考：
+```
+請幫我設計一個使用者註冊表單，包含以下步驟：
+
+  1. 設計表單結構
+    - 以 React Hook Form 實作
+    - 以 React 實作
+    - 元件使用 Shadcn 的 UI 元件
+  2. 撰寫測試程式碼
+    - 以 Jest 實作
+    - 以 React Testing Library 實作
+    - 元件使用 Shadcn 的 UI 元件
+    - 測試程式碼需要包含所有可能的邊界條件
+  - 步驟 3：設計表單功能
+    - 以 React Hook Form 實作
+```
+
+其次，是提供範例，讓 AI 知道我們的期望。
+
+
+接下來，是 SMART 原則。
 
 
 
-### 產出程式碼
+### 綜合應用 - 產出程式碼
+
+應用以上原則，我們可以設計出更符合我們期望的 Prompt。
+
+前後比較：
+無應用原則的 Prompt：
+```
+請幫我實作一個 Fibonnaci 數列。
+```
+
+有應用原則的 Prompt：
+```
+請幫我實作一個 Fibonnaci 數列，提供我 3 個範例。
+
+- 範例 1：使用遞迴。
+- 範例 2：使用迴圈。
+- 範例 3：使用記憶化。
+
+```
+
+
+
+
+
+
 
 ### 測試與調整
 
