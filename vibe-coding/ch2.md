@@ -346,22 +346,237 @@ export function RegisterForm() {
 
 這樣的清單，就是「有序清單」，因為我們的期望每一項都有「先後順序」的必要，且若不照此順序，會導致產出的結果不符合我們的期望，那就很適合用「有序清單」。
 
-最後，提供一個最完整，結合「無序清單」和「有序清單」的 Prompt 範例供大家參考：
+最後，提供一個相對完整，結合「無序清單」和「有序清單」的 Prompt 範例供大家參考，可以試試看將以下 Prompt 餵給 ChatGPT 或 Claude 嘗試看看，是否能夠產出更符合你期望的結果：
+
 ```
-請幫我設計一個使用者註冊表單，包含以下步驟：
+請幫我設計一個使用者註冊表單，包含以下規格：
 
   1. 設計表單結構
     - 以 React Hook Form 實作
     - 以 React 實作
     - 元件使用 Shadcn 的 UI 元件
+    - 表單需要包含以下欄位：
+      - 使用者名稱
+        - 必填
+        - 長度限制 20 個字
+      - 使用者密碼
+        - 必填
+        - 長度限制 8 ~ 16 個字
+      - 使用者信箱
+        - 必填
+        - 長度限制 10 個字，驗證格式為 email。
   2. 撰寫測試程式碼
     - 以 Jest 實作
     - 以 React Testing Library 實作
     - 元件使用 Shadcn 的 UI 元件
     - 測試程式碼需要包含所有可能的邊界條件
-  - 步驟 3：設計表單功能
-    - 以 React Hook Form 實作
+      - 使用者名稱：
+        - 必填
+        - 長度限制 20 個字
+      - 使用者密碼：
+        - 必填
+        - 長度限制 8 ~ 16 個字
+      - 使用者信箱：
+        - 必填
+        - 長度限制 10 個字，驗證格式為 email。
+      - 按下註冊按鈕：
+        - 若表單驗證通過，則顯示註冊成功訊息
+        - 若表單驗證未通過，則顯示錯誤訊息
+  3. 撰寫技術文件
+    - 以 Markdown 格式撰寫
+    - 技術文件需要包含所有可能的邊界條件，按照第一步驟的表單結構，撰寫每一個欄位的驗證規則。
 ```
+
+以下是 Prompt 結果，可以看到說，這樣的結果比起上一個 Prompt 的結果，更符合我們的期望，且更完整。
+```
+
+import { useForm } from "react-hook-form";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+
+export function RegisterForm() {
+  const form = useForm({
+    defaultValues: {
+      username: "",
+      password: "",
+      email: "",
+    },
+  });
+
+  const onSubmit = (data) => {
+    console.log(data);
+  };
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <FormField
+          control={form.control}
+          name="username"
+          rules={{
+            required: "使用者名稱為必填",
+            maxLength: {
+              value: 20,
+              message: "使用者名稱不能超過20個字",
+            },
+          }}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>使用者名稱</FormLabel>
+              <FormControl>
+                <Input placeholder="請輸入使用者名稱" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="password"
+          rules={{
+            required: "密碼為必填",
+            minLength: {
+              value: 8,
+              message: "密碼長度需至少8個字",
+            },
+            maxLength: {
+              value: 16,
+              message: "密碼長度不能超過16個字",
+            },
+          }}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>使用者密碼</FormLabel>
+              <FormControl>
+                <Input type="password" placeholder="請輸入密碼" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="email"
+          rules={{
+            required: "電子郵件為必填",
+            maxLength: {
+              value: 10,
+              message: "電子郵件不能超過10個字",
+            },
+            pattern: {
+              value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+              message: "請輸入有效的電子郵件格式",
+            },
+          }}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>使用者信箱</FormLabel>
+              <FormControl>
+                <Input type="email" placeholder="請輸入電子郵件" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <Button type="submit">註冊</Button>
+      </form>
+    </Form>
+  );
+}
+```
+
+單元測試
+```
+import { render, screen, fireEvent } from "@testing-library/react";
+import { RegisterForm } from "./RegisterForm";
+
+describe("RegisterForm", () => {
+  it("should validate username field", async () => {
+    render(<RegisterForm />);
+    const usernameInput = screen.getByPlaceholderText("請輸入使用者名稱");
+
+    // 測試必填
+    fireEvent.blur(usernameInput);
+    expect(await screen.findByText("使用者名稱為必填")).toBeInTheDocument();
+
+    // 測試長度限制
+    fireEvent.change(usernameInput, { target: { value: "a".repeat(21) } });
+    fireEvent.blur(usernameInput);
+    expect(await screen.findByText("使用者名稱不能超過20個字")).toBeInTheDocument();
+  });
+
+  //...
+
+  it("should submit the form if validation passes", async () => {
+    render(<RegisterForm />);
+    const usernameInput = screen.getByPlaceholderText("請輸入使用者名稱");
+    const passwordInput = screen.getByPlaceholderText("請輸入密碼");
+    const emailInput = screen.getByPlaceholderText("請輸入電子郵件");
+    const submitButton = screen.getByText("註冊");
+
+    fireEvent.change(usernameInput, { target: { value: "validuser" } });
+    fireEvent.change(passwordInput, { target: { value: "validpassword" } });
+    fireEvent.change(emailInput, { target: { value: "valid@email.com" } });
+    fireEvent.click(submitButton);
+
+    // 假設表單提交成功後會顯示成功訊息
+    expect(console.log).toHaveBeenCalledWith({
+      username: "validuser",
+      password: "validpassword",
+      email: "valid@email.com",
+    });
+  });
+});
+```
+
+技術文件
+```
+# 使用者註冊表單技術文件
+
+## 表單結構
+- **框架**：React + React Hook Form
+- **UI 元件庫**：Shadcn
+
+### 欄位驗證規則
+1. **使用者名稱**：
+   - 必填。
+   - 長度限制：最多 20 個字。
+2. **使用者密碼**：
+   - 必填。
+   - 長度限制：8 ~ 16 個字。
+3. **使用者信箱**：
+   - 必填。
+   - 長度限制：最多 10 個字。
+   - 格式驗證：必須符合電子郵件格式。
+
+## 測試案例
+- 測試所有欄位的必填驗證。
+- 測試欄位的長度限制。
+- 測試電子郵件的格式驗證。
+- 測試表單提交功能。
+
+## 使用情境
+- 適用於需要使用者註冊功能的前端應用。
+- 可用於原型開發或正式產品。
+
+```
+
+以上是使用 DeepSeek 的 AI 產出的結果，雖然比起 Claude 最新版本或是其他高階的 AI 模型，產出的結果較不完整，但已經是相當夠用了。
+
+
+...
+
 
 其次，是提供範例，讓 AI 知道我們的期望。
 
