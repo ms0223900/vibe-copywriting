@@ -581,9 +581,444 @@ describe("RegisterForm", () => {
 如果願望更為精準，許一個「我想要變成巴菲特那樣有錢，且擁有能夠一輩子花不完的錢，而且錢幣不會隨時代貶值，並且不佔用空間。」，神燈精靈可能給你的是一張「沒有額度上限的信用卡」（超級魔法小卡），讓你一輩子「不受額度」限制可以「無限刷卡」，且「永久有效」。
 
 
+有點扯遠了，舉以上這個「警世」小故事的範例，目的是要說明，如果我們的期望不夠精準，AI 可能會給出雖可以接受，但「不盡完美」的結果，這時候我們需要提供更精準的期望，讓 AI 知道我們的期望的具體樣貌。
+
+提供 AI 範例的方式可以有好幾種，像是以下三種：
+
+- 提供具體的範例：提供清楚且具體的範例，讓 AI 知道我們的期望的具體樣貌。
+- 提供抽象的範例：提供抽象的概念範例，描述期望應該要有的樣子，但沒有太多具體的細節。
+- 提供反例：提供反例，讓 AI 知道我們「不希望的反面樣貌」。
+
+接著，我們來看看這三種方式究竟是該如何讓 Prompt 更精準。
+
+首先，是提供具體的範例。承襲上一節的範例，我們可以提供以下 Prompt：
+```
+請幫我設計一個 React 的表單，包含以下規格：
+
+  1. 設計表單結構
+    請設計成類似如下格式，將每個欄位設計成一個 FormItem，並且每個欄位需要包含 FormLabel、FormControl 和 FormMessage，可以使用 Shadcn 的 UI 元件：
+    ```
+    <Form>
+      <FormItem>
+        <FormLabel>使用者名稱</FormLabel>
+        <FormControl>
+          <Input placeholder="請輸入使用者名稱" />
+        </FormControl>
+        <FormMessage />
+        //...
+      </FormItem>
+    </Form>
+    ```
+  2. 表單規格
+    - 以 React Hook Form 實作
+    - 元件使用 Shadcn 的 UI 元件
+    - 表單需要包含以下欄位：
+      - 使用者名稱：必填，8 ~ 16 個字
+      - 使用者密碼：必填，8 ~ 16 個字
+      - 使用者信箱：必填，10 個字，驗證格式為 email
+
+  3. 技術文件
+    - 以 Markdown 格式撰寫
+    - 文件範例如下
+    ```
+    # 使用者註冊表單技術文件
+
+    ## 表單技術結構
+
+    ### 欄位驗證規則
+
+    ### 測試案例
+
+    ### 使用情境
+    ```
+```
+
+產出的 Prompt 如下所示意，可以看到 Prompt 相對於以上的「清單」 Prompt ，在產出的「結構」上更為可控，但細節上比較不全。不過這想想也合理，畢竟根本沒有提供那麼多的細節，AI 怎麼可能產出那麼多細節的結果呢？
+
+特別是「技術文件」的產出，可以很明顯的感受到，比起「清單」 Prompt 的結果，更為完整，且更符合我們的期望。有依照我們提供的「模板」範例，依照需求乖乖地產出完整的技術文件。
+
+```
+以下是一個符合您需求的 React 表單設計，包含表單結構、技術文件以及相關的驗證規則。我將使用 React Hook Form 和 Shadcn 的 UI 元件來實現。
+
+---
+
+### 1. 表單結構
+```tsx
+import { useForm } from "react-hook-form";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+
+export function RegisterForm() {
+  const form = useForm({
+    defaultValues: {
+      username: "",
+      password: "",
+      email: "",
+    },
+  });
+
+  const onSubmit = (data) => {
+    console.log(data);
+  };
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        //...
+        <FormField
+          control={form.control}
+          name="email"
+          rules={{
+            required: "電子郵件為必填",
+            maxLength: {
+              value: 10,
+              message: "電子郵件不能超過10個字",
+            },
+            pattern: {
+              value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+              message: "請輸入有效的電子郵件格式",
+            },
+          }}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>使用者信箱</FormLabel>
+              <FormControl>
+                <Input type="email" placeholder="請輸入電子郵件" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <Button type="submit">註冊</Button>
+      </form>
+    </Form>
+  );
+}
+```
+
+---
+
+### 2. 技術文件
+```markdown
+# 使用者註冊表單技術文件
+
+## 表單技術結構
+- **框架**：React + React Hook Form
+- **UI 元件庫**：Shadcn
+
+### 欄位驗證規則
+1. **使用者名稱**：
+   - 必填。
+   - 長度限制：8 ~ 16 個字。
+2. **使用者密碼**：
+   - 必填。
+   - 長度限制：8 ~ 16 個字。
+3. **使用者信箱**：
+   - 必填。
+   - 長度限制：最多 10 個字。
+   - 格式驗證：必須符合電子郵件格式。
+
+### 測試案例
+- 測試所有欄位的必填驗證。
+- 測試欄位的長度限制。
+- 測試電子郵件的格式驗證。
+- 測試表單提交功能。
+
+### 使用情境
+- 適用於需要使用者註冊功能的前端應用。
+- 可用於原型開發或正式產品。
+```
+
+---
+
+### 3. 測試程式碼
+```tsx
+import { render, screen, fireEvent } from "@testing-library/react";
+import { RegisterForm } from "./RegisterForm";
+
+describe("RegisterForm", () => {
+  it("should validate username field", async () => {
+    render(<RegisterForm />);
+    const usernameInput = screen.getByPlaceholderText("請輸入使用者名稱");
+
+    // 測試必填
+    fireEvent.blur(usernameInput);
+    expect(await screen.findByText("使用者名稱為必填")).toBeInTheDocument();
+
+    // 測試長度限制
+    fireEvent.change(usernameInput, { target: { value: "a".repeat(7) } });
+    fireEvent.blur(usernameInput);
+    expect(await screen.findByText("使用者名稱需至少8個字")).toBeInTheDocument();
+
+    fireEvent.change(usernameInput, { target: { value: "a".repeat(17) } });
+    fireEvent.blur(usernameInput);
+    expect(await screen.findByText("使用者名稱不能超過16個字")).toBeInTheDocument();
+  });
+
+  // 其他欄位的測試案例可以依此類推
+});
+```
+
+```
+
+接下來，先講一下「反例」。正面例子是利用「正向規範拘束」，請求 AI 幫我們照著期望「照樣照句」產出結果。
+
+反例則是利用「負向規範拘束」，請求 AI 幫我們避免產出某些內容。
+
+像是以下 Prompt 是請求 AI 幫我們避免產出某些內容，因為我們有先前的經驗，知道某些內容是不想要產出的：
+```
+請幫我設計一個 React 的表單，包含以下規格：
+
+1. 表單結構
+- 需要有 使用者名稱、使用者密碼、使用者信箱 三個欄位。都是必填，且需要有驗證規則。
+  - 使用者名稱：必填，8 ~ 16 個字
+  - 使用者密碼：必填，8 ~ 16 個字
+  - 使用者信箱：必填，10 個字，驗證格式為 email
+- 不要使用 原生 HTML 的 input, button, form 元件
+- 不要寫註解
+- 在表單的送出觸發中，不要寫 console.log
+
+2. 技術文件
+- 不要有英文說明
+- 寫最精簡即可
+
+3. 測試程式碼
+- 不用寫錯誤案例
+- 不用寫邊界條件
+```
+
+以下節錄部分 Prompt 產出的結果，可以看到之前都會在 onSubmit 中寫 console.log，但現在都沒有，透過負向規範拘束，我們成功避免產出特定不希望產出的結果：
+```
+### 1. 表單結構
+```tsx
+import { useForm } from "react-hook-form";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+
+export function RegisterForm() {
+  const form = useForm({
+    defaultValues: {
+      username: "",
+      password: "",
+      email: "",
+    },
+  });
+
+  const onSubmit = (data) => {
+    // 表單提交邏輯
+  };
+
+  return (
+    <Form {...form}>
+      //...
+    </Form>
+  );
+}
+```
+//... 省略技術文件部分產出
+
+### 3. 測試程式碼
+```tsx
+import { render, screen, fireEvent } from "@testing-library/react";
+import { RegisterForm } from "./RegisterForm";
+
+describe("RegisterForm", () => {
+  it("should submit the form if validation passes", async () => {
+    render(<RegisterForm />);
+    const usernameInput = screen.getByPlaceholderText("請輸入使用者名稱");
+    const passwordInput = screen.getByPlaceholderText("請輸入密碼");
+    const emailInput = screen.getByPlaceholderText("請輸入電子郵件");
+    const submitButton = screen.getByText("註冊");
+
+    fireEvent.change(usernameInput, { target: { value: "validuser" } });
+    fireEvent.change(passwordInput, { target: { value: "validpassword" } });
+    fireEvent.change(emailInput, { target: { value: "valid@email.com" } });
+    fireEvent.click(submitButton);
+  });
+});
+```
+
+最後，是抽象的範例。像是以下 Prompt 是請求 AI 幫我們產出抽象的概念範例，描述期望應該要有的樣子，但沒有太多具體的細節。
+
+```
+請幫我設計一個 React 的表單：
+
+1. 表單結構
+- 需要有 使用者名稱、使用者密碼、使用者信箱 三個欄位。都是必填，且需要有驗證規則。
+- 驗證規格可以按照大多數的表單驗證規則，像是長度限制、格式驗證等。
+
+2. 技術文件
+- 以常見的技術文件格式撰寫
+- 文件結構優良，至少要有三個段落，分別解說表單結構、功能以及使用情境等。
+
+3. 測試程式碼
+- 以常見的測試程式碼格式撰寫
+- 測試程式碼至少要有三個案例，分別測試表單結構、功能以及使用情境等。
+```
+
+產出的 Prompt 如下所示意，透過抽象的範例，讓 AI 可以更自由地發揮，藉由其「大型語言模型」的特性，產出「更為大眾」的結果。讓我們不必拘泥於特定的框架或技術，而是「更像是客戶」所想要的需求那般描述需求，而非指定太多的規格細節，反而讓 AI 無法發揮。
+
+這樣的好處是，不必一開始就想好太多特定規格細節，而是先產個 6 ~ 8 成左右，根據產出結果「收斂」，做逐步調整。上述具體案例，產出結果大概 7 ~ 9 成可以直接使用，剩下 1 ~ 3 成再細微調整就好，但提供具體案例的前期準備比較耗時，所以可以先產出抽象的範例，再逐步收斂。
+
+尤其像是測試案例，雖然案例不夠完整（也不見得真的有測試足夠精準）
+
+```
+
+以下是一個符合您需求的 React 表單設計，包含表單結構、技術文件以及測試程式碼。我將使用 React Hook Form 來實現表單驗證，並以 Markdown 格式撰寫技術文件。
+
+---
+
+### 1. 表單結構
+```tsx
+import { useForm } from "react-hook-form";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+
+export function RegisterForm() {
+  const form = useForm({
+    defaultValues: {
+      username: "",
+      password: "",
+      email: "",
+    },
+  });
+
+  const onSubmit = (data) => {
+    console.log(data);
+  };
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        //... 省略
+
+        <FormField
+          control={form.control}
+          name="password"
+          rules={{
+            required: "密碼為必填",
+            minLength: {
+              value: 6,
+              message: "密碼長度需至少6個字",
+            },
+            maxLength: {
+              value: 16,
+              message: "密碼長度不能超過16個字",
+            },
+          }}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>使用者密碼</FormLabel>
+              <FormControl>
+                <Input type="password" placeholder="請輸入密碼" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        //... 省略
+      </form>
+    </Form>
+  );
+}
+```
+
+---
+
+### 2. 技術文件
+```markdown
+# 使用者註冊表單技術文件
+
+## 表單結構
+- **框架**：React + React Hook Form
+- **UI 元件庫**：Shadcn
+
+### 欄位驗證規則
+1. **使用者名稱**：
+   - 必填。
+   - 長度限制：3 ~ 20 個字。
+2. **使用者密碼**：
+   - 必填。
+   - 長度限制：6 ~ 16 個字。
+3. **使用者信箱**：
+   - 必填。
+   - 格式驗證：必須符合電子郵件格式。
+
+## 功能
+- 表單提交時會驗證所有欄位是否符合規則。
+- 若驗證失敗，會顯示對應的錯誤訊息。
+- 若驗證通過，表單會提交資料。
+
+## 使用情境
+- 適用於需要使用者註冊功能的前端應用。
+- 可用於原型開發或正式產品。
+```
+
+---
+
+### 3. 測試程式碼
+```tsx
+import { render, screen, fireEvent } from "@testing-library/react";
+import { RegisterForm } from "./RegisterForm";
+
+describe("RegisterForm", () => {
+  it("should validate username field", async () => {
+    //... 省略
+  });
+
+  it("should validate email field", async () => {
+    //... 省略
+  });
+
+  it("should submit the form if validation passes", async () => {
+    //... 省略
+  });
+});
+```
+
+```
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+---
 
 
 接下來，是 SMART 原則。
@@ -609,6 +1044,7 @@ describe("RegisterForm", () => {
 - 範例 3：使用記憶化。
 
 ```
+
 
 
 
