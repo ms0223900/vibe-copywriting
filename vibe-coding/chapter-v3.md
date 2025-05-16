@@ -16,16 +16,16 @@
     - **讀者練習**：章節小測驗，測驗讀者對 Vibe Coding 的了解程度。（實際練習待決定）
 
 - **Ch 2：AI 驅動開發的基礎**
-    - AI 在開發中的角色與潛力
+    - 了解 AI 在開發中的角色與潛力
     - AI 輔助開發的流程。
-      - 設定 Prompt
+      - 「設計」 Prompt
       - 產出程式碼
       - 測試與調整
     - 如何理解與應用 AI 工具（如 Cursor IDE）
         - 以 Cursor IDE 為例，介紹 AI 輔助開發的流程。
         - 設定 AI 輔助開發的 Prompt 設定檔：.cursorrules, .cursorignore
     - 結論：為什麼「還是要寫 Code」？ 請 AI 工具直接產出 Prototype 不是更好嗎？
-    - **實戰案例**：使用 Cursor IDE 快速完成程式碼片段
+    - **實戰案例**：使用 Cursor IDE 快速完成功能
     - **讀者練習**：使用 Cursor IDE 完成一個小任務
 
 ---
